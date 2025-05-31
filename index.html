@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Data API</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="api/index.html">API</a>
+                <a href="api/documentation.html">API Documentation</a>
+                <a href="api/manage-keys.html">API Keys</a>
+                <a href="api/test.html">Test API</a>
+            </nav>
+            <h1><i class="fas fa-building"></i> Company Data API</h1>
+            <p>Access and filter company recruitment information</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search by company name, industry, or location...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="industry-filter">Industry:</label>
+                    <select id="industry-filter">
+                        <option value="">All Industries</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="recruitment-filter">Recruitment Status:</label>
+                    <select id="recruitment-filter">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="size-filter">Company Size:</label>
+                    <select id="size-filter">
+                        <option value="">All Sizes</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Results <span id="results-count">(0)</span></h2>
+                <div class="view-toggle">
+                    <button id="grid-view" class="active"><i class="fas fa-th"></i></button>
+                    <button id="list-view"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+            
+            <div id="companies-container" class="grid-view">
+                <!-- Companies will be loaded here -->
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading companies...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="company-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Company Data API. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

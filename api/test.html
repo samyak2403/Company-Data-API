@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #333;
+            --border-radius: 5px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--light-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .result {
+            margin-top: 1.5rem;
+            background-color: var(--light-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            overflow: auto;
+        }
+        
+        pre {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .status {
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-error {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .nav-links {
+            margin-bottom: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-right: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: var(--light-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="nav-links">
+            <a href="../index.html">Main Site</a>
+            <a href="index.html">API Home</a>
+            <a href="documentation.html">Documentation</a>
+            <a href="manage-keys.html">Manage Keys</a>
+        </nav>
+        
+        <h1><i class="fas fa-vial"></i> API Test Page</h1>
+        
+        <div class="test-section">
+            <h2>Test API Endpoints</h2>
+            
+            <div class="form-group">
+                <label for="endpoint">Select Endpoint:</label>
+                <select id="endpoint">
+                    <option value="companies">Get All Companies</option>
+                    <option value="company">Get Company by ID</option>
+                    <option value="search">Search Companies</option>
+                    <option value="industries">Get All Industries</option>
+                    <option value="sizes">Get All Company Sizes</option>
+                    <option value="stats">Get API Stats</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="company-id-group" style="display: none;">
+                <label for="company-id">Company ID:</label>
+                <input type="number" id="company-id" placeholder="Enter company ID">
+            </div>
+            
+            <div class="form-group" id="search-term-group" style="display: none;">
+                <label for="search-term">Search Term:</label>
+                <input type="text" id="search-term" placeholder="Enter search term">
+            </div>
+            
+            <div class="form-group">
+                <label for="api-key">API Key:</label>
+                <input type="text" id="api-key" value="demo-key-123456" placeholder="Enter API key">
+            </div>
+            
+            <button id="test-btn">Test API</button>
+            
+            <div id="result" class="result" style="display: none;">
+                <div id="status"></div>
+                <pre id="response"></pre>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>API Key Validation</h2>
+            
+            <div class="form-group">
+                <label for="validate-key">API Key to Validate:</label>
+                <input type="text" id="validate-key" value="demo-key-123456" placeholder="Enter API key to validate">
+            </div>
+            
+            <button id="validate-btn">Validate Key</button>
+            
+            <div id="validation-result" class="result" style="display: none;">
+                <div id="validation-status"></div>
+                <pre id="validation-response"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script src="api.js"></script>
+    <script>
+        // Get DOM elements
+        const endpointSelect = document.getElementById('endpoint');
+        const companyIdGroup = document.getElementById('company-id-group');
+        const searchTermGroup = document.getElementById('search-term-group');
+        const companyIdInput = document.getElementById('company-id');
+        const searchTermInput = document.getElementById('search-term');
+        const apiKeyInput = document.getElementById('api-key');
+        const testBtn = document.getElementById('test-btn');
+        const resultDiv = document.getElementById('result');
+        const statusDiv = document.getElementById('status');
+        const responseDiv = document.getElementById('response');
+        
+        const validateKeyInput = document.getElementById('validate-key');
+        const validateBtn = document.getElementById('validate-btn');
+        const validationResultDiv = document.getElementById('validation-result');
+        const validationStatusDiv = document.getElementById('validation-status');
+        const validationResponseDiv = document.getElementById('validation-response');
+        
+        // Show/hide input fields based on selected endpoint
+        endpointSelect.addEventListener('change', function() {
+            const endpoint = this.value;
+            
+            companyIdGroup.style.display = endpoint === 'company' ? 'block' : 'none';
+            searchTermGroup.style.display = endpoint === 'search' ? 'block' : 'none';
+        });
+        
+        // Test API endpoint
+        testBtn.addEventListener('click', async function() {
+            const endpoint = endpointSelect.value;
+            const apiKey = apiKeyInput.value;
+            
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            
+            let url = `index.html?endpoint=${endpoint}&api_key=${apiKey}`;
+            
+            // Add additional parameters based on endpoint
+            if (endpoint === 'company') {
+                const companyId = companyIdInput.value;
+                if (!companyId) {
+                    alert('Please enter a company ID');
+                    return;
+                }
+                url += `&id=${companyId}`;
+            } else if (endpoint === 'search') {
+                const searchTerm = searchTermInput.value;
+                if (!searchTerm) {
+                    alert('Please enter a search term');
+                    return;
+                }
+                url += `&term=${searchTerm}`;
+            }
+            
+            try {
+                // Make the API request
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Try to parse the response as JSON
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    // If not valid JSON, show the raw text
+                    resultDiv.style.display = 'block';
+                    statusDiv.innerHTML = `<span class="status status-error">Error: Invalid JSON response</span>`;
+                    responseDiv.textContent = text;
+                    return;
+                }
+                
+                // Display the result
+                resultDiv.style.display = 'block';
+                
+                if (data.status >= 200 && data.status < 300) {
+                    statusDiv.innerHTML = `<span class="status status-success">Success: Status ${data.status}</span>`;
+                } else {
+                    statusDiv.innerHTML = `<span class="status status-error">Error: Status ${data.status}</span>`;
+                }
+                
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                statusDiv.innerHTML = `<span class="status status-error">Error: ${error.message}</span>`;
+                responseDiv.textContent = error.stack;
+            }
+        });
+        
+        // Validate API key
+        validateBtn.addEventListener('click', function() {
+            const apiKey = validateKeyInput.value;
+            
+            if (!apiKey) {
+                alert('Please enter an API key to validate');
+                return;
+            }
+            
+            // Use the API.js validation function
+            const validation = CompanyDataApi.validateApiKey(apiKey);
+            
+            // Display the result
+            validationResultDiv.style.display = 'block';
+            
+            if (validation.valid) {
+                validationStatusDiv.innerHTML = `<span class="status status-success">API Key is valid</span>`;
+            } else {
+                validationStatusDiv.innerHTML = `<span class="status status-error">API Key is invalid: ${validation.error || ''}</span>`;
+            }
+            
+            validationResponseDiv.textContent = JSON.stringify(validation, null, 2);
+        });
+    </script>
+</body>
+</html> 

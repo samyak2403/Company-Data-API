@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Data API</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f8f9fa;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-links {
+            margin-bottom: 1rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section {
+            text-align: center;
+            background-color: var(--light-color);
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #1a252f;
+        }
+        
+        .endpoint-examples {
+            margin-bottom: 3rem;
+        }
+        
+        .endpoint-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .endpoint-url {
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .endpoint-description {
+            margin-top: 0.5rem;
+            color: #666;
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-links">
+                <a href="../index.html">Main Site</a>
+                <a href="documentation.html">Documentation</a>
+                <a href="manage-keys.html">Manage Keys</a>
+                <a href="test.html">Test API</a>
+            </nav>
+            <h1>Company Data API</h1>
+            <p>Access comprehensive company recruitment data with our easy-to-use API</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Welcome to the Company Data API</h1>
+            <p>Our API provides access to detailed information about 70+ companies, including their recruitment status, industry, size, and more. Perfect for job seekers, recruiters, and developers building job search platforms.</p>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Fast & Reliable</h3>
+                <p>Our API is designed for speed and reliability, with minimal latency and high availability.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-lock"></i>
+                <h3>Secure Access</h3>
+                <p>API key authentication ensures that only authorized users can access the data.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-search"></i>
+                <h3>Powerful Search</h3>
+                <p>Search companies by name, industry, location, or recruitment status with our flexible search parameters.</p>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>Ready to Get Started?</h2>
+            <p>Check out our documentation or get your API key to start building with the Company Data API.</p>
+            <div class="cta-buttons">
+                <a href="documentation.html" class="btn">View Documentation</a>
+                <a href="manage-keys.html" class="btn btn-secondary">Get API Key</a>
+            </div>
+        </section>
+
+        <section class="endpoint-examples">
+            <h2>Popular Endpoints</h2>
+            <div class="endpoint-card">
+                <h3>Get All Companies</h3>
+                <div class="endpoint-url">GET /api/?endpoint=companies&api_key=YOUR_API_KEY</div>
+                <p class="endpoint-description">Retrieve a list of all companies in the database with their complete details.</p>
+            </div>
+            <div class="endpoint-card">
+                <h3>Search Companies</h3>
+                <div class="endpoint-url">GET /api/?endpoint=search&term=SEARCH_TERM&api_key=YOUR_API_KEY</div>
+                <p class="endpoint-description">Search for companies by name, industry, or location.</p>
+            </div>
+            <div class="endpoint-card">
+                <h3>Get Company Details</h3>
+                <div class="endpoint-url">GET /api/?endpoint=company&id=COMPANY_ID&api_key=YOUR_API_KEY</div>
+                <p class="endpoint-description">Get detailed information about a specific company by its ID.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Company Data API. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="documentation.html" class="btn">Documentation</a>
+                <a href="manage-keys.html" class="btn">Manage API Keys</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="api.js"></script>
+</body>
+</html> 

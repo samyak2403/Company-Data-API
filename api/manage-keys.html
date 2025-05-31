@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #333;
+            --border-radius: 5px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--box-shadow);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .key-list {
+            margin-top: 2rem;
+        }
+        
+        .key-item {
+            background-color: var(--light-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .key-info {
+            flex: 1;
+        }
+        
+        .key-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        .key-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-delete {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .key-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .key-actions {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-links">
+                <a href="../index.html">Main Site</a>
+                <a href="index.html">API Home</a>
+                <a href="documentation.html">Documentation</a>
+                <a href="test.html">Test API</a>
+            </nav>
+            <h1><i class="fas fa-key"></i> API Key Management</h1>
+            <p>Create and manage API keys for the Company Data API</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2>Create New API Key</h2>
+            
+            <div id="alert-container"></div>
+            
+            <form id="create-key-form">
+                <div class="form-group">
+                    <label for="owner-name">Owner Name</label>
+                    <input type="text" id="owner-name" required placeholder="Enter the name of the key owner">
+                </div>
+                
+                <div class="form-group">
+                    <label for="rate-limit">Rate Limit (requests per hour)</label>
+                    <input type="number" id="rate-limit" required min="10" max="1000" value="100">
+                </div>
+                
+                <button type="submit">Generate API Key</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>Your API Keys</h2>
+            
+            <div id="keys-container" class="key-list">
+                <!-- API keys will be dynamically added here -->
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Validate API Key</h2>
+            
+            <div id="validation-result"></div>
+            
+            <form id="validate-key-form">
+                <div class="form-group">
+                    <label for="api-key">API Key</label>
+                    <input type="text" id="api-key" required placeholder="Enter API key to validate">
+                </div>
+                
+                <button type="submit">Validate Key</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Company Data API. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="api.js"></script>
+    <script>
+        // Function to display alert
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            // Clear alert after 5 seconds
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Function to render API keys
+        function renderApiKeys() {
+            const keysContainer = document.getElementById('keys-container');
+            keysContainer.innerHTML = '';
+            
+            // Get keys from the API
+            const apiKeys = CompanyDataApi.getApiKeys();
+            
+            // Add keys to the container
+            apiKeys.forEach(keyData => {
+                const keyItem = document.createElement('div');
+                keyItem.className = 'key-item';
+                
+                const createdDate = new Date(keyData.created).toLocaleDateString();
+                const isDemo = keyData.key === 'demo-key-123456';
+                
+                keyItem.innerHTML = `
+                    <div class="key-info">
+                        <h3>${keyData.owner}'s Key</h3>
+                        <p><strong>API Key:</strong> <code>${keyData.key}</code></p>
+                        <p><strong>Owner:</strong> ${keyData.owner}</p>
+                        <p><strong>Rate Limit:</strong> ${keyData.rateLimit} requests/hour</p>
+                        <p><strong>Created:</strong> ${createdDate}</p>
+                        <p><strong>Total Calls:</strong> ${keyData.calls.total}</p>
+                        <p><strong>Calls in Last Hour:</strong> ${keyData.calls.lastHour}</p>
+                    </div>
+                    <div class="key-actions">
+                        <button class="btn-delete" data-key="${keyData.key}" ${isDemo ? 'disabled' : ''}>Delete</button>
+                    </div>
+                `;
+                keysContainer.appendChild(keyItem);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.btn-delete:not([disabled])').forEach(button => {
+                button.addEventListener('click', function() {
+                    const key = this.getAttribute('data-key');
+                    deleteApiKey(key);
+                });
+            });
+        }
+        
+        // Function to create a new API key
+        function createApiKey(owner, rateLimit) {
+            const newKey = CompanyDataApi.generateApiKey();
+            const apiKeys = CompanyDataApi.getApiKeys();
+            
+            apiKeys.push({
+                key: newKey,
+                owner: owner,
+                rateLimit: parseInt(rateLimit),
+                created: new Date().toISOString(),
+                calls: {
+                    total: 0,
+                    lastHour: 0,
+                    lastReset: new Date().toISOString()
+                }
+            });
+            
+            // Save to localStorage
+            CompanyDataApi.saveApiKeys(apiKeys);
+            
+            // Render keys
+            renderApiKeys();
+            
+            return newKey;
+        }
+        
+        // Function to delete an API key
+        function deleteApiKey(key) {
+            if (confirm(`Are you sure you want to delete this API key?`)) {
+                const apiKeys = CompanyDataApi.getApiKeys();
+                const updatedKeys = apiKeys.filter(k => k.key !== key);
+                
+                // Save to localStorage
+                CompanyDataApi.saveApiKeys(updatedKeys);
+                
+                // Render keys
+                renderApiKeys();
+                
+                showAlert('API key deleted successfully.', 'success');
+            }
+        }
+        
+        // Form submission for creating new key
+        document.getElementById('create-key-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const owner = document.getElementById('owner-name').value.trim();
+            const rateLimit = document.getElementById('rate-limit').value;
+            
+            if (!owner) {
+                showAlert('Please enter an owner name.', 'danger');
+                return;
+            }
+            
+            const newKey = createApiKey(owner, rateLimit);
+            showAlert(`API key created successfully: ${newKey}`, 'success');
+            
+            // Reset form
+            this.reset();
+            document.getElementById('rate-limit').value = '100';
+        });
+        
+        // Form submission for validating key
+        document.getElementById('validate-key-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const key = document.getElementById('api-key').value.trim();
+            const validationResult = document.getElementById('validation-result');
+            
+            if (!key) {
+                validationResult.innerHTML = '<div class="alert alert-danger">Please enter an API key.</div>';
+                return;
+            }
+            
+            // Check if key is valid using the API
+            const validation = CompanyDataApi.validateApiKey(key);
+            
+            if (validation.valid) {
+                validationResult.innerHTML = '<div class="alert alert-success">API key is valid.</div>';
+            } else {
+                validationResult.innerHTML = `<div class="alert alert-danger">API key is invalid. ${validation.error || ''}</div>`;
+            }
+            
+            // Clear validation result after 5 seconds
+            setTimeout(() => {
+                validationResult.innerHTML = '';
+            }, 5000);
+        });
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderApiKeys();
+        });
+    </script>
+</body>
+</html> 
