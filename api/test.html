@@ -15,6 +15,9 @@
             --text-color: #333;
             --border-radius: 5px;
             --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
         }
         
         * {
@@ -95,11 +98,13 @@
             padding: 1rem;
             border-radius: var(--border-radius);
             overflow: auto;
+            max-height: 400px;
         }
         
         pre {
             font-family: monospace;
             white-space: pre-wrap;
+            word-break: break-word;
         }
         
         .status {
@@ -111,12 +116,22 @@
         }
         
         .status-success {
-            background-color: #2ecc71;
+            background-color: var(--success-color);
             color: white;
         }
         
         .status-error {
-            background-color: var(--accent-color);
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .status-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .status-loading {
+            background-color: var(--secondary-color);
             color: white;
         }
         
@@ -135,6 +150,65 @@
         
         .nav-links a:hover {
             background-color: var(--light-color);
+        }
+        
+        .url-display {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            word-break: break-all;
+            border: 1px solid #ddd;
+        }
+        
+        .copy-btn {
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .copy-btn:hover {
+            background-color: #2c3e50;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-top: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 0.5rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            margin-bottom: -1px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+        
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -181,9 +255,23 @@
             
             <button id="test-btn">Test API</button>
             
+            <div id="url-display" class="url-display" style="display: none;">
+                <span id="request-url"></span>
+                <button id="copy-url" class="copy-btn">Copy</button>
+            </div>
+            
             <div id="result" class="result" style="display: none;">
                 <div id="status"></div>
-                <pre id="response"></pre>
+                <div class="tabs">
+                    <div class="tab active" data-tab="formatted">Formatted</div>
+                    <div class="tab" data-tab="raw">Raw</div>
+                </div>
+                <div id="formatted-response" class="tab-content active">
+                    <pre id="response"></pre>
+                </div>
+                <div id="raw-response" class="tab-content">
+                    <pre id="raw"></pre>
+                </div>
             </div>
         </div>
         
@@ -204,7 +292,6 @@
         </div>
     </div>
     
-    <script src="api.js"></script>
     <script>
         // Get DOM elements
         const endpointSelect = document.getElementById('endpoint');
@@ -217,12 +304,44 @@
         const resultDiv = document.getElementById('result');
         const statusDiv = document.getElementById('status');
         const responseDiv = document.getElementById('response');
+        const rawDiv = document.getElementById('raw');
+        const urlDisplayDiv = document.getElementById('url-display');
+        const requestUrlSpan = document.getElementById('request-url');
+        const copyUrlBtn = document.getElementById('copy-url');
         
         const validateKeyInput = document.getElementById('validate-key');
         const validateBtn = document.getElementById('validate-btn');
         const validationResultDiv = document.getElementById('validation-result');
         const validationStatusDiv = document.getElementById('validation-status');
         const validationResponseDiv = document.getElementById('validation-response');
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                // Show corresponding tab content
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(`${tabName}-response`).classList.add('active');
+            });
+        });
+        
+        // Copy URL functionality
+        copyUrlBtn.addEventListener('click', function() {
+            const url = requestUrlSpan.textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        });
         
         // Show/hide input fields based on selected endpoint
         endpointSelect.addEventListener('change', function() {
@@ -231,6 +350,212 @@
             companyIdGroup.style.display = endpoint === 'company' ? 'block' : 'none';
             searchTermGroup.style.display = endpoint === 'search' ? 'block' : 'none';
         });
+        
+        // Format JSON for display
+        function formatJson(json) {
+            if (typeof json === 'string') {
+                try {
+                    json = JSON.parse(json);
+                } catch (e) {
+                    return json;
+                }
+            }
+            return JSON.stringify(json, null, 2);
+        }
+        
+        // Build API URL
+        function buildApiUrl(params) {
+            // Get the current origin and path
+            const origin = window.location.origin;
+            const path = window.location.pathname.replace('test.html', 'index.html');
+            
+            // Build the URL
+            const baseUrl = origin + path;
+            const queryParams = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                queryParams.append(key, value);
+            });
+            
+            return `${baseUrl}?${queryParams.toString()}`;
+        }
+
+        // Direct API implementation that doesn't rely on fetch
+        async function directApiRequest(params) {
+            // Check for API key
+            if (!params.api_key) {
+                return {
+                    status: 401,
+                    timestamp: new Date().toISOString(),
+                    error: 'API key is required'
+                };
+            }
+            
+            // Validate API key
+            const keyValidation = validateApiKey(params.api_key);
+            if (!keyValidation.valid) {
+                return {
+                    status: 403,
+                    timestamp: new Date().toISOString(),
+                    error: keyValidation.error
+                };
+            }
+            
+            // Check for endpoint
+            if (!params.endpoint) {
+                return {
+                    status: 400,
+                    timestamp: new Date().toISOString(),
+                    error: 'Endpoint parameter is required'
+                };
+            }
+            
+            try {
+                // Fetch the database
+                const response = await fetch('../data/database.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch database');
+                }
+                
+                const database = await response.json();
+                const companies = Array.isArray(database) ? 
+                    database.map(item => item.companies) : 
+                    (database.companies || []);
+                
+                // Handle different endpoints
+                switch (params.endpoint.toLowerCase()) {
+                    case 'companies':
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: companies
+                        };
+                        
+                    case 'company':
+                        if (!params.id) {
+                            return {
+                                status: 400,
+                                timestamp: new Date().toISOString(),
+                                error: 'Company ID is required'
+                            };
+                        }
+                        
+                        const company = companies.find(c => c.companyId.toString() === params.id.toString());
+                        if (!company) {
+                            return {
+                                status: 404,
+                                timestamp: new Date().toISOString(),
+                                error: 'Company not found'
+                            };
+                        }
+                        
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: company
+                        };
+                        
+                    case 'search':
+                        if (!params.term) {
+                            return {
+                                status: 400,
+                                timestamp: new Date().toISOString(),
+                                error: 'Search term is required'
+                            };
+                        }
+                        
+                        const term = params.term.toLowerCase();
+                        const results = companies.filter(company => 
+                            company.name.toLowerCase().includes(term) || 
+                            (company.industry && company.industry.toLowerCase().includes(term)) || 
+                            (company.headquarters && company.headquarters.toLowerCase().includes(term))
+                        );
+                        
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: results
+                        };
+                        
+                    case 'industries':
+                        const industries = [...new Set(companies
+                            .filter(company => company.industry)
+                            .map(company => company.industry))].sort();
+                        
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: industries
+                        };
+                        
+                    case 'sizes':
+                        const sizes = [...new Set(companies
+                            .filter(company => company.size)
+                            .map(company => company.size))].sort();
+                        
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: sizes
+                        };
+                        
+                    case 'stats':
+                        const stats = {
+                            totalCompanies: companies.length,
+                            industries: [...new Set(companies
+                                .filter(company => company.industry)
+                                .map(company => company.industry))].length,
+                            activelyRecruiting: companies.filter(company => company.isRecruiting).length,
+                            notRecruiting: companies.filter(company => !company.isRecruiting).length
+                        };
+                        
+                        return {
+                            status: 200,
+                            timestamp: new Date().toISOString(),
+                            data: stats
+                        };
+                        
+                    default:
+                        return {
+                            status: 400,
+                            timestamp: new Date().toISOString(),
+                            error: 'Invalid endpoint'
+                        };
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                return {
+                    status: 500,
+                    timestamp: new Date().toISOString(),
+                    error: 'Internal server error: ' + error.message
+                };
+            }
+        }
+        
+        // Validate API key from localStorage
+        function validateApiKey(key) {
+            try {
+                // Try to get API keys from localStorage
+                const apiKeysStr = localStorage.getItem('apiKeys');
+                if (!apiKeysStr) {
+                    return { valid: false, error: 'No API keys found in storage' };
+                }
+                
+                const apiKeys = JSON.parse(apiKeysStr);
+                const apiKey = apiKeys.find(k => k.key === key);
+                
+                if (!apiKey) {
+                    return { valid: false, error: 'Invalid API key' };
+                }
+                
+                return {
+                    valid: true,
+                    key: apiKey
+                };
+            } catch (error) {
+                console.error('Error validating API key:', error);
+                return { valid: false, error: 'Error validating key: ' + error.message };
+            }
+        }
         
         // Test API endpoint
         testBtn.addEventListener('click', async function() {
@@ -242,56 +567,60 @@
                 return;
             }
             
-            let url = `index.html?endpoint=${endpoint}&api_key=${apiKey}`;
-            
-            // Add additional parameters based on endpoint
-            if (endpoint === 'company') {
-                const companyId = companyIdInput.value;
-                if (!companyId) {
-                    alert('Please enter a company ID');
-                    return;
-                }
-                url += `&id=${companyId}`;
-            } else if (endpoint === 'search') {
-                const searchTerm = searchTermInput.value;
-                if (!searchTerm) {
-                    alert('Please enter a search term');
-                    return;
-                }
-                url += `&term=${searchTerm}`;
-            }
+            // Show loading state
+            resultDiv.style.display = 'block';
+            statusDiv.innerHTML = `<span class="status status-loading">Loading...</span>`;
+            responseDiv.textContent = 'Making API request...';
+            rawDiv.textContent = '';
             
             try {
-                // Make the API request
-                const response = await fetch(url);
-                const text = await response.text();
+                // Build parameters object
+                const params = {
+                    endpoint: endpoint,
+                    api_key: apiKey
+                };
                 
-                // Try to parse the response as JSON
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    // If not valid JSON, show the raw text
-                    resultDiv.style.display = 'block';
-                    statusDiv.innerHTML = `<span class="status status-error">Error: Invalid JSON response</span>`;
-                    responseDiv.textContent = text;
-                    return;
+                // Add additional parameters based on endpoint
+                if (endpoint === 'company') {
+                    const companyId = companyIdInput.value;
+                    if (!companyId) {
+                        alert('Please enter a company ID');
+                        return;
+                    }
+                    params.id = companyId;
+                } else if (endpoint === 'search') {
+                    const searchTerm = searchTermInput.value;
+                    if (!searchTerm) {
+                        alert('Please enter a search term');
+                        return;
+                    }
+                    params.term = searchTerm;
                 }
+                
+                // Build and display the API URL
+                const apiUrl = buildApiUrl(params);
+                urlDisplayDiv.style.display = 'block';
+                requestUrlSpan.textContent = apiUrl;
+                
+                // Use direct API implementation instead of fetch
+                const response = await directApiRequest(params);
+                const rawResponse = JSON.stringify(response);
                 
                 // Display the result
-                resultDiv.style.display = 'block';
-                
-                if (data.status >= 200 && data.status < 300) {
-                    statusDiv.innerHTML = `<span class="status status-success">Success: Status ${data.status}</span>`;
+                if (response.status >= 200 && response.status < 300) {
+                    statusDiv.innerHTML = `<span class="status status-success">Success: Status ${response.status}</span>`;
                 } else {
-                    statusDiv.innerHTML = `<span class="status status-error">Error: Status ${data.status}</span>`;
+                    statusDiv.innerHTML = `<span class="status status-error">Error: Status ${response.status}</span>`;
                 }
                 
-                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.textContent = formatJson(response);
+                rawDiv.textContent = rawResponse;
+                
             } catch (error) {
-                resultDiv.style.display = 'block';
-                statusDiv.innerHTML = `<span class="status status-error">Error: ${error.message}</span>`;
-                responseDiv.textContent = error.stack;
+                console.error("API Error:", error);
+                statusDiv.innerHTML = `<span class="status status-error">Error: ${error.message || 'Unknown error'}</span>`;
+                responseDiv.textContent = error.stack || error.toString();
+                rawDiv.textContent = error.stack || error.toString();
             }
         });
         
@@ -304,19 +633,63 @@
                 return;
             }
             
-            // Use the API.js validation function
-            const validation = CompanyDataApi.validateApiKey(apiKey);
-            
-            // Display the result
-            validationResultDiv.style.display = 'block';
-            
-            if (validation.valid) {
-                validationStatusDiv.innerHTML = `<span class="status status-success">API Key is valid</span>`;
-            } else {
-                validationStatusDiv.innerHTML = `<span class="status status-error">API Key is invalid: ${validation.error || ''}</span>`;
+            try {
+                // Use the validation function
+                const validation = validateApiKey(apiKey);
+                
+                // Display the result
+                validationResultDiv.style.display = 'block';
+                
+                if (validation && validation.valid) {
+                    validationStatusDiv.innerHTML = `<span class="status status-success">API Key is valid</span>`;
+                } else {
+                    const errorMsg = validation ? validation.error || '' : 'Validation function not available';
+                    validationStatusDiv.innerHTML = `<span class="status status-error">API Key is invalid: ${errorMsg}</span>`;
+                }
+                
+                validationResponseDiv.textContent = formatJson(validation);
+            } catch (error) {
+                console.error("Validation Error:", error);
+                validationResultDiv.style.display = 'block';
+                validationStatusDiv.innerHTML = `<span class="status status-error">Error: ${error.message || 'Unknown error'}</span>`;
+                validationResponseDiv.textContent = error.stack || error.toString();
             }
-            
-            validationResponseDiv.textContent = JSON.stringify(validation, null, 2);
+        });
+        
+        // Initialize demo key in localStorage if it doesn't exist
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const apiKeysStr = localStorage.getItem('apiKeys');
+                let apiKeys = [];
+                
+                if (apiKeysStr) {
+                    apiKeys = JSON.parse(apiKeysStr);
+                }
+                
+                // Check if demo key exists
+                const demoKeyExists = apiKeys.some(k => k.key === 'demo-key-123456');
+                
+                if (!demoKeyExists) {
+                    // Add demo key
+                    apiKeys.push({
+                        key: 'demo-key-123456',
+                        owner: 'Demo User',
+                        rateLimit: 50,
+                        created: new Date().toISOString(),
+                        calls: {
+                            total: 0,
+                            lastHour: 0,
+                            lastReset: new Date().toISOString()
+                        }
+                    });
+                    
+                    // Save back to localStorage
+                    localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
+                    console.log('Demo key initialized in localStorage');
+                }
+            } catch (error) {
+                console.warn('Failed to initialize demo key:', error);
+            }
         });
     </script>
 </body>
