@@ -123,7 +123,7 @@ Follow these steps to host the project on GitHub Pages:
 
 3. Connect your local repository to GitHub:
    ```bash
-   git remote add origin https://github.com/yourusername/company-data-api.git
+   git remote add origin https://github.com/samyak2403/company-data-api.git
    git branch -M main
    git push -u origin main
    ```
@@ -138,7 +138,7 @@ Follow these steps to host the project on GitHub Pages:
 
 5. Your site will be available at:
    ```
-   https://yourusername.github.io/company-data-api/
+   https://samyak2403.github.io/company-data-api/
    ```
 
 ## Customizing the Data
@@ -180,7 +180,7 @@ To use your own company data:
 ```javascript
 async function getCompanies() {
   const apiKey = 'demo-key-123456';
-  const response = await fetch(`https://yourusername.github.io/company-data-api/api/?endpoint=companies&api_key=${apiKey}`);
+  const response = await fetch(`https://samyak2403.github.io/company-data-api/api/?endpoint=companies&api_key=${apiKey}`);
   const data = await response.json();
   
   if (data.status === 200) {
@@ -199,7 +199,7 @@ import requests
 
 def get_companies():
     api_key = 'demo-key-123456'
-    url = f'https://yourusername.github.io/company-data-api/api/?endpoint=companies&api_key={api_key}'
+    url = f'https://samyak2403.github.io/company-data-api/api/?endpoint=companies&api_key={api_key}'
     
     response = requests.get(url)
     data = response.json()
